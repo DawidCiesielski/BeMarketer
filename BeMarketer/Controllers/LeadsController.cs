@@ -128,6 +128,8 @@ namespace BeMarketer.Controllers
                 return Forbid();
             }
 
+            ViewData["StatusList"] = new SelectList(Enum.GetValues(typeof(LeadStatus)), lead.Status);
+
             if (User.IsInRole("Admin"))
             {
                 ViewData["ApplicationUserId"] = new SelectList(_context.Set<ApplicationUser>(), "Id", "UserName", lead.ApplicationUserId);
@@ -155,12 +157,14 @@ namespace BeMarketer.Controllers
             {
                 return NotFound();
             }
-
+            
             // Ochrona 1: Próba edycji nieswojego leada przez POST
             if (!isAdmin && originalLead.ApplicationUserId != userId)
             {
                 return Forbid();
             }
+
+            ViewData["StatusList"] = new SelectList(Enum.GetValues(typeof(LeadStatus)), lead.Status); // był brak selected
 
             // Ochrona 2: Zwykły użytkownik nie może zmienić przypisania leada, nadpisujemy na jego własne ID
             if (!isAdmin)
@@ -189,7 +193,7 @@ namespace BeMarketer.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-
+            ViewData["StatusList"] = new SelectList(Enum.GetValues(typeof(LeadStatus)));
             if (isAdmin)
             {
                 ViewData["ApplicationUserId"] = new SelectList(_context.Set<ApplicationUser>(), "Id", "UserName", lead.ApplicationUserId);
@@ -213,7 +217,7 @@ namespace BeMarketer.Controllers
             {
                 return NotFound();
             }
-
+            ViewData["StatusList"] = new SelectList(Enum.GetValues(typeof(LeadStatus)));
             // Ochrona przed usunięciem cudzego leada
             if (!User.IsInRole("Admin") && lead.ApplicationUserId != _userManager.GetUserId(User))
             {

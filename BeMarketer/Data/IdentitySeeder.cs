@@ -27,7 +27,6 @@ namespace BeMarketer.Data
                 Console.WriteLine($"Nie można zaaplikować migracji z poziomu Seeder'a: {ex.Message}");
             }
 
-            // Role do utworzenia
             string[] roles = new[] { "Admin", "User" };
             foreach (var role in roles)
             {

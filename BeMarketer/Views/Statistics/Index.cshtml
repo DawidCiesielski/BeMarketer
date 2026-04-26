@@ -1,0 +1,354 @@
+@model BeMarketer.ViewModels.StatisticsViewModel
+@using System.Globalization
+@{
+    ViewData["Title"] = "Statystyki";
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<div class="container py-4">
+
+    <div class="stats-header">
+        <div>
+            <h1>Statystyki</h1>
+            <p class="period-badge">
+                @Model.PeriodLabel
+                @if (Model.HasComparison)
+                {
+                    <text>&nbsp;vs&nbsp;@Model.ComparePeriodLabel</text>
+                }
+            </p>
+        </div>
+    </div>
+
+<form method="get" asp-action="Index">
+    <div class="row g-2 align-items-center mb-3">
+        <div class="col-auto">
+            <select name="year" class="form-select">
+                @foreach (var y in Model.AvailableYears)
+                {
+                    if (Model.SelectedYear == y)
+                    {
+                        <option value="@y" selected="selected">@y</option>
+                    }
+                    else
+                    {
+                        <option value="@y">@y</option>
+                    }
+                }
+            </select>
+        </div>
+
+        <div class="col-auto">
+            <select name="month" class="form-select">
+                <option value="">— Cały rok —</option>
+                @for (int m = 1; m <= 12; m++)
+                {
+                    var mName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(m);
+                    if (Model.SelectedMonth == m)
+                    {
+                        <option value="@m" selected="selected">@mName</option>
+                    }
+                    else
+                    {
+                        <option value="@m">@mName</option>
+                    }
+                }
+            </select>
+        </div>
+
+        <div class="col-auto">
+            <select name="compareYear" class="form-select">
+                <option value="">—</option>
+                @foreach (var y in Model.AvailableYears)
+                {
+                    if (Model.CompareYear == y)
+                    {
+                        <option value="@y" selected="selected">@y</option>
+                    }
+                    else
+                    {
+                        <option value="@y">@y</option>
+                    }
+                }
+            </select>
+        </div>
+
+        <div class="col-auto">
+            <select name="compareMonth" class="form-select">
+                <option value="">— Cały rok —</option>
+                @for (int m = 1; m <= 12; m++)
+                {
+                    var mName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(m);
+                    if (Model.CompareMonth == m)
+                    {
+                        <option value="@m" selected="selected">@mName</option>
+                    }
+                    else
+                    {
+                        <option value="@m">@mName</option>
+                    }
+                }
+            </select>
+        </div>
+
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">Zastosuj</button>
+            <a href="@Url.Action("Index")" class="btn btn-secondary">Resetuj</a>
+        </div>
+    </div>
+</form>
+
+    @{
+        var curr = Model.CurrentPeriodStats;
+        var comp = Model.ComparePeriodStats;
+
+        string DeltaHtml(int currVal, int? compVal)
+        {
+            if (compVal == null) return "";
+            var diff = currVal - compVal.Value;
+            if (diff == 0) return "<span class='kpi-delta'>= bez zmian</span>";
+            var sign  = diff > 0 ? "+" : "";
+            var cls   = diff > 0 ? "up" : "down";
+            var arrow = diff > 0 ? "▲" : "▼";
+            return $"<span class='kpi-delta {cls}'>{arrow} {sign}{diff} vs {Model.ComparePeriodLabel}</span>";
+        }
+
+        string DeltaDoubleHtml(double currVal, double? compVal)
+        {
+            if (compVal == null) return "";
+            var diff = Math.Round(currVal - compVal.Value, 1);
+            if (diff == 0) return "<span class='kpi-delta'>= bez zmian</span>";
+            var sign  = diff > 0 ? "+" : "";
+            var cls   = diff > 0 ? "up" : "down";
+            var arrow = diff > 0 ? "▲" : "▼";
+            return $"<span class='kpi-delta {cls}'>{arrow} {sign}{diff}% vs {Model.ComparePeriodLabel}</span>";
+        }
+    }
+
+    <h4>Statystyki ogólne</h4>
+    <table class="table table-bordered mb-4">
+        <thead>
+            <tr>
+                <th>Metryka</th>
+                <th>Okres (@Model.PeriodLabel)</th>
+                @if (Model.ComparePeriodStats != null)
+                {
+                    <th>Porównanie (@Model.ComparePeriodLabel)</th>
+                    <th>Różnica</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Wszystkie leady</td>
+                <td>@curr?.TotalLeads</td>
+                @if (Model.ComparePeriodStats != null)
+                {
+                    <td>@comp?.TotalLeads</td>
+                    <td>@(curr.TotalLeads - (comp?.TotalLeads ?? 0))</td>
+                }
+            </tr>
+            <tr>
+                <td>Nowe</td>
+                <td>@curr?.NewLeads</td>
+                @if (Model.ComparePeriodStats != null)
+                {
+                    <td>@comp?.NewLeads</td>
+                    <td>@(curr.NewLeads - (comp?.NewLeads ?? 0))</td>
+                }
+            </tr>
+            <tr>
+                <td>Skontaktowane</td>
+                <td>@curr?.ContactedLeads</td>
+                @if (Model.ComparePeriodStats != null)
+                {
+                    <td>@comp?.ContactedLeads</td>
+                    <td>@(curr.ContactedLeads - (comp?.ContactedLeads ?? 0))</td>
+                }
+            </tr>
+            <tr>
+                <td>Zakwalifikowane</td>
+                <td>@curr?.QualifiedLeads</td>
+                @if (Model.ComparePeriodStats != null)
+                {
+                    <td>@comp?.QualifiedLeads</td>
+                    <td>@(curr.QualifiedLeads - (comp?.QualifiedLeads ?? 0))</td>
+                }
+            </tr>
+            <tr>
+                <td>Utracone</td>
+                <td>@curr?.LostLeads</td>
+                @if (Model.ComparePeriodStats != null)
+                {
+                    <td>@comp?.LostLeads</td>
+                    <td>@(curr.LostLeads - (comp?.LostLeads ?? 0))</td>
+                }
+            </tr>
+            <tr>
+                <td>Konwersja (%)</td>
+                <td>@String.Format("{0:0.0}", curr?.ConversionRate ?? 0)</td>
+                @if (Model.ComparePeriodStats != null)
+                {
+                    <td>@String.Format("{0:0.0}", comp?.ConversionRate ?? 0)</td>
+                    <td>@String.Format("{0:+0.0;-0.0;0.0}", (curr?.ConversionRate ?? 0) - (comp?.ConversionRate ?? 0))</td>
+                }
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="top-section row mb-4">
+        <div class="col-md-4">
+            @if (Model.TopEmployee != null)
+            {
+                <table class="table table-bordered">
+                    <thead>
+                        <tr><th colspan="2">Najlepszy pracownik</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Pracownik</td><td>@Model.TopEmployee.UserName</td></tr>
+                        <tr><td>Leady</td><td>@Model.TopEmployee.LeadCount</td></tr>
+                        <tr><td>Qualified</td><td>@Model.TopEmployee.QualifiedLeads</td></tr>
+                        <tr><td>Utracone</td><td>@Model.TopEmployee.LostLeads</td></tr>
+                        <tr><td>Konwersja (%)</td><td>@String.Format("{0:0.0}", Model.TopEmployee.ConversionRate)</td></tr>
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div class="alert alert-secondary">Brak danych o pracownikach</div>
+            }
+        </div>
+    </div>
+
+    @if (Model.EmployeeRanking.Any())
+    {
+        <div class="ranking-section">
+            <div class="section-title">Ranking pracowników</div>
+            <div class="chart-card">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Pracownik</th>
+                            <th>Leady</th>
+                            <th>Nowe</th>
+                            <th>Kontakt</th>
+                            <th>Qualified</th>
+                            <th>Utracone</th>
+                            <th>Konwersja</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{int rank = 1;}
+                        @foreach (var emp in Model.EmployeeRanking)
+                        {
+                            var rankCls = rank == 1 ? "gold" : rank == 2 ? "silver" : rank == 3 ? "bronze" : "";
+                            var safeCount = emp.LeadCount > 0 ? emp.LeadCount : 1;
+                            <tr>
+                                <td class="rank-num @rankCls">@rank</td>
+                                <td>@emp.UserName</td>
+                                <td><strong>@emp.LeadCount</strong></td>
+                                <td><span class="status-pill pill-new">@emp.NewLeads</span></td>
+                                <td><span class="status-pill pill-contacted">@emp.ContactedLeads</span></td>
+                                <td><span class="status-pill pill-qualified">@emp.QualifiedLeads</span></td>
+                                <td><span class="status-pill pill-lost">@emp.LostLeads</span></td>
+                                <td style="color:var(--accent)">@emp.ConversionRate%</td>
+                            </tr>
+                            rank++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+
+</div>
+
+@section Scripts {
+<script>
+(function () {
+    var hasComparison = @(Model.HasComparison ? "true" : "false");
+
+    @if (Model.SelectedMonth.HasValue)
+    {
+        var daysInMonth      = DateTime.DaysInMonth(Model.SelectedYear, Model.SelectedMonth.Value);
+        var dailyDict        = Model.DailyData.ToDictionary(d => d.Date.Day, d => d.Count);
+        var compareDailyDict = Model.CompareDailyData.ToDictionary(d => d.Date.Day, d => d.Count);
+
+        @:var labels      = Array.from({length: @daysInMonth}, (_, i) => String(i + 1));
+        @:var currentData = [@(string.Join(",", Enumerable.Range(1, daysInMonth).Select(d => dailyDict.GetValueOrDefault(d, 0))))];
+        @:var compareData = [@(string.Join(",", Enumerable.Range(1, daysInMonth).Select(d => compareDailyDict.GetValueOrDefault(d, 0))))];
+    }
+    else
+    {
+        var monthNames         = CultureInfo.CurrentCulture.DateTimeFormat.AbbreviatedMonthNames.Take(12).ToArray();
+        var monthlyDict        = Model.MonthlyData.ToDictionary(m => m.Month, m => m.Count);
+        var compareMonthlyDict = Model.CompareMonthlyData.ToDictionary(m => m.Month, m => m.Count);
+
+        @:var labels      = [@(string.Join(",", monthNames.Select(m => $"'{m}'")))];
+        @:var currentData = [@(string.Join(",", Enumerable.Range(1, 12).Select(m => monthlyDict.GetValueOrDefault(m, 0))))];
+        @:var compareData = [@(string.Join(",", Enumerable.Range(1, 12).Select(m => compareMonthlyDict.GetValueOrDefault(m, 0))))];
+    }
+
+    var datasets = [{
+        label: '@Model.PeriodLabel',
+        data: currentData,
+        borderColor: '#00e5a0',
+        backgroundColor: 'rgba(0,229,160,0.08)',
+        borderWidth: 2,
+        pointRadius: 3,
+        pointHoverRadius: 6,
+        tension: 0.4,
+        fill: true
+    }];
+
+    if (hasComparison) {
+        datasets.push({
+            label: '@Model.ComparePeriodLabel',
+            data: compareData,
+            borderColor: '#ff6b6b',
+            backgroundColor: 'rgba(255,107,107,0.06)',
+            borderWidth: 2,
+            borderDash: [5, 4],
+            pointRadius: 3,
+            pointHoverRadius: 6,
+            tension: 0.4,
+            fill: true
+        });
+    }
+
+    new Chart(document.getElementById('mainChart').getContext('2d'), {
+        type: 'line',
+        data: { labels: labels, datasets: datasets },
+        options: {
+            responsive: true,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#1a1e29',
+                    borderColor: '#252a38',
+                    borderWidth: 1,
+                    titleColor: '#e8eaf0',
+                    bodyColor: '#6b7280',
+                    padding: 10
+                }
+            },
+            scales: {
+                x: {
+                    grid: { color: 'rgba(37,42,56,0.8)' },
+                    ticks: { color: '#6b7280', font: { family: "'DM Mono'", size: 11 } }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(37,42,56,0.8)' },
+                    ticks: { color: '#6b7280', font: { family: "'DM Mono'", size: 11 }, stepSize: 1 }
+                }
+            }
+        }
+    });
+})();
+</script>
+}
