@@ -5,10 +5,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Linq; // Wymagane do LINQ (.Select)
+using System.Linq; 
 using System.Threading.Tasks;
 
-namespace BeMarketer.Data // Dodano przestrzeń nazw dla porządku
+namespace BeMarketer.Data 
 {
     public static class IdentitySeeder
     {
@@ -18,8 +18,6 @@ namespace BeMarketer.Data // Dodano przestrzeń nazw dla porządku
             var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
             var db = services.GetRequiredService<ApplicationDbContext>();
 
-            // Upewnij się, że migracje są zastosowane (bezpieczniej opakować w try-catch, 
-            // gdyby baza była zablokowana)
             try
             {
                 await db.Database.MigrateAsync();
@@ -39,10 +37,9 @@ namespace BeMarketer.Data // Dodano przestrzeń nazw dla porządku
                 }
             }
 
-            // Dane admina z konfiguracji (lub bezpieczne domyślne)
             var adminEmail = "admin@bemarketer.pl";
-            var adminUserName = adminEmail; // Najlepiej, aby Username był Emailem
-            var adminPassword = "Admin123!"; // Musi spełniać zasady (np. znak specjalny)
+            var adminUserName = adminEmail; 
+            var adminPassword = "Admin123!";
 
             var admin = await userManager.FindByEmailAsync(adminEmail);
             if (admin == null)
@@ -52,19 +49,17 @@ namespace BeMarketer.Data // Dodano przestrzeń nazw dla porządku
                     UserName = adminUserName,
                     Email = adminEmail,
                     EmailConfirmed = true,
-                    Role = UserRole.Admin // Zwróć uwagę, by Namespace był prawidłowy
+                    Role = UserRole.Admin
                 };
 
                 var createResult = await userManager.CreateAsync(admin, adminPassword);
                 if (!createResult.Succeeded)
                 {
-                    // POPRAWKA: Wyciągamy faktyczne opisy błędów z listy obiektów IdentityError
                     var errors = string.Join(", ", createResult.Errors.Select(e => e.Description));
                     throw new Exception($"Nie udało się utworzyć konta admina. Powody: {errors}");
                 }
             }
 
-            // Przypisz rolę Admin jeśli jeszcze nie przypisana
             if (!await userManager.IsInRoleAsync(admin, "Admin"))
             {
                 await userManager.AddToRoleAsync(admin, "Admin");

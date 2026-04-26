@@ -10,7 +10,7 @@ namespace BeMarketer.Models
     }
     public class ApplicationUser : IdentityUser
     {
-        private UserRole role = UserRole.Admin;
+        private UserRole role = UserRole.User;
 
         [Required(ErrorMessage = "Rola jest wymagana.")]
         public UserRole Role { get => role; set => role = value; }

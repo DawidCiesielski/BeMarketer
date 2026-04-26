@@ -33,7 +33,7 @@ using (var scope = app.Services.CreateScope())
     try
     {
         // Wywołanie Twojej metody do seedowania
-        // await DbSeeder.SeedAsync(services, builder.Configuration, app.Logger);
+        await IdentitySeeder.SeedAsync(services, builder.Configuration);
     }
     catch (Exception ex)
     {
