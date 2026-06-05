@@ -1,0 +1,114 @@
+/* =============================================
+   BeMarketer — Navbar refresh
+   Dodaj do: wwwroot/css/navbar.css
+   i podlinkuj w _Layout.cshtml:
+   <link rel="stylesheet" href="~/css/navbar.css" />
+   ============================================= */
+
+.navbar {
+    height: 52px;
+    padding: 0 1.5rem;
+    background: #ffffff;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Brand */
+.navbar-brand {
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: -0.3px;
+    color: #1a1a1a;
+    text-decoration: none;
+}
+
+.navbar-brand span {
+    color: #1D9E75;
+}
+
+/* Nav links */
+.navbar-nav {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.navbar-nav .nav-item .nav-link {
+    font-size: 13px;
+    color: #6b7280;
+    text-decoration: none;
+    padding: 5px 12px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: background 0.15s, color 0.15s;
+    line-height: 1;
+}
+
+.navbar-nav .nav-item .nav-link i {
+    font-size: 15px;
+}
+
+.navbar-nav .nav-item .nav-link:hover {
+    background: #f3f4f6;
+    color: #1a1a1a;
+}
+
+.navbar-nav .nav-item .nav-link.active {
+    background: #E1F5EE;
+    color: #0F6E56;
+    font-weight: 500;
+}
+
+/* Right side: avatar + email + logout */
+.navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.navbar-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #E1F5EE;
+    color: #0F6E56;
+    font-size: 11px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    user-select: none;
+}
+
+.navbar-email {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.navbar-logout {
+    font-size: 12px;
+    padding: 5px 11px;
+    border-radius: 20px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    background: transparent;
+    color: #6b7280;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    display: inline-flex;
+    align-items: center;
+}
+
+.navbar-logout:hover {
+    background: #f3f4f6;
+    color: #1a1a1a;
+    border-color: rgba(0, 0, 0, 0.25);
+}
