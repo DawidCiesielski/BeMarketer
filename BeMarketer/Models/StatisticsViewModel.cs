@@ -1,40 +1,74 @@
 using BeMarketer.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace BeMarketer.ViewModels
 {
     public class EmployeeStats
     {
         public string UserId { get; set; }
+
+        [Required, StringLength(20)]
         public string UserName { get; set; }
+
+        [Required, Range(0, int.MaxValue)]
         public int LeadCount { get; set; }
+
+        [Required, Range(0, int.MaxValue)]
         public int NewLeads { get; set; }
+
+        [Required, Range(0, int.MaxValue)]
         public int ContactedLeads { get; set; }
+
+        [Required, Range(0, int.MaxValue)]
         public int QualifiedLeads { get; set; }
+
+        [Required, Range(0, int.MaxValue)]
         public int LostLeads { get; set; }
+
         public double ConversionRate => LeadCount > 0 ? Math.Round((double)QualifiedLeads / LeadCount * 100, 1) : 0;
     }
 
     public class PeriodStats
     {
+        [Required, Range(0, int.MaxValue)]
         public int TotalLeads { get; set; }
+
+        [Required, Range(0, int.MaxValue)]
         public int NewLeads { get; set; }
+
+        [Required, Range(0, int.MaxValue)]
         public int ContactedLeads { get; set; }
+
+        [Required, Range(0, int.MaxValue)]
         public int QualifiedLeads { get; set; }
+
+        [Required, Range(0, int.MaxValue)]
         public int LostLeads { get; set; }
+
         public double ConversionRate => TotalLeads > 0 ? Math.Round((double)QualifiedLeads / TotalLeads * 100, 1) : 0;
     }
 
     public class DailyLeadCount
     {
+        [Required]
         public DateTime Date { get; set; }
+
+        [Required, Range(0, int.MaxValue)]
         public int Count { get; set; }
     }
 
     public class StatisticsViewModel
     {
+        [Required, Range(0, int.MaxValue)]
         public int SelectedYear { get; set; }
+
+        [Range(1, 12)]
         public int? SelectedMonth { get; set; }
+
+        [Range(0, int.MaxValue)]
         public int? CompareYear { get; set; }
+
+        [Range(1, 12)]
         public int? CompareMonth { get; set; }
 
         public PeriodStats CurrentPeriodStats { get; set; } = new();
@@ -51,6 +85,7 @@ namespace BeMarketer.ViewModels
         public List<(int Month, int Count)> CompareMonthlyData { get; set; } = new();
 
         public List<int> AvailableYears { get; set; } = new();
+
         public string PeriodLabel => SelectedMonth.HasValue
             ? $"{System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(SelectedMonth.Value)} {SelectedYear}"
             : SelectedYear.ToString();

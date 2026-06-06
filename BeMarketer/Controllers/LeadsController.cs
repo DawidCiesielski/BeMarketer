@@ -82,10 +82,7 @@ namespace BeMarketer.Controllers
                 ModelState.Remove("ApplicationUserId");
             }
 
-            if (lead.CreatedAt == default)
-            {
-                lead.CreatedAt = DateTime.Now;
-            }
+            lead.CreatedAt = DateTime.Now;
 
             if (ModelState.IsValid)
             {
