@@ -11,7 +11,7 @@ using BeMarketer.ViewModels;
 
 namespace BeMarketer.Controllers
 {
-    [Authorize] // Wymaga zalogowania
+    [Authorize]
     public class StatisticsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -21,14 +21,13 @@ namespace BeMarketer.Controllers
             _context = context;
         }
 
-        // GET: /Statistics
+      
         public async Task<IActionResult> Index(
             int? year,
             int? month,
             int? compareYear,
             int? compareMonth)
         {
-            // Tylko Admin widzi statystyki wszystkich
             if (!User.IsInRole("Admin"))
             {
                 return Forbid();
@@ -36,9 +35,8 @@ namespace BeMarketer.Controllers
 
             var currentYear = DateTime.Now.Year;
             var selectedYear = year ?? currentYear;
-            var selectedMonth = month; // null = cały rok
+            var selectedMonth = month; 
 
-            // Dostępne lata (od pierwszego leada do teraz)
             var availableYears = await _context.Lead
                 .Select(l => l.CreatedAt.Year)
                 .Distinct()
@@ -48,12 +46,10 @@ namespace BeMarketer.Controllers
             if (!availableYears.Contains(currentYear))
                 availableYears.Insert(0, currentYear);
 
-            // ── Główny okres ──────────────────────────────────────────────
             var currentQuery = BuildPeriodQuery(selectedYear, selectedMonth);
             var currentPeriodStats = await GetPeriodStats(currentQuery);
             var employeeStats = await GetEmployeeStats(currentQuery);
 
-            // Dane do wykresu
             List<DailyLeadCount> dailyData = new();
             List<(int Month, int Count)> monthlyData = new();
 
@@ -66,7 +62,6 @@ namespace BeMarketer.Controllers
                 monthlyData = await GetMonthlyData(selectedYear);
             }
 
-            // ── Okres porównawczy ─────────────────────────────────────────
             PeriodStats? comparePeriodStats = null;
             List<DailyLeadCount> compareDailyData = new();
             List<(int Month, int Count)> compareMonthlyData = new();
@@ -102,7 +97,6 @@ namespace BeMarketer.Controllers
             return View(vm);
         }
 
-        // ── Metody pomocnicze ─────────────────────────────────────────────
 
         private IQueryable<Lead> BuildPeriodQuery(int year, int? month)
         {

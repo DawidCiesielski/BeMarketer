@@ -5,9 +5,6 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// --------------------------------------------------------
-// 1. REJESTRACJA SERWISÓW (tutaj używamy "builder.Services")
-// --------------------------------------------------------
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -17,22 +14,13 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.R
 
 builder.Services.AddControllersWithViews();
 
-// --------------------------------------------------------
-// 2. ZBUDOWANIE APLIKACJI (Kluczowy moment!)
-// Narzędzia EF Core muszą dotrzeć do tej linijki, aby zadziałać.
-// --------------------------------------------------------
 var app = builder.Build();
 
-// --------------------------------------------------------
-// 3. SEEDOWANIE BAZY DANYCH (Musi być PO builder.Build()!)
-// Tutaj używamy "app.Services", a nie "builder.Services"
-// --------------------------------------------------------
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     try
     {
-        // Wywołanie Twojej metody do seedowania
         await IdentitySeeder.SeedAsync(services, builder.Configuration);
     }
     catch (Exception ex)
@@ -42,9 +30,6 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-// --------------------------------------------------------
-// 4. KONFIGURACJA MIDDLEWARE
-// --------------------------------------------------------
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -56,7 +41,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseAuthentication(); // Ważne: to musi być przed Authorization!
+app.UseAuthentication(); 
 app.UseAuthorization();
 
 app.MapControllerRoute(
@@ -64,7 +49,4 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
 
-// --------------------------------------------------------
-// 5. URUCHOMIENIE APLIKACJI
-// --------------------------------------------------------
 app.Run();

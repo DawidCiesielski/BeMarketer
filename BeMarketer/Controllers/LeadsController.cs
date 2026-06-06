@@ -12,7 +12,7 @@ using BeMarketer.Models;
 
 namespace BeMarketer.Controllers
 {
-    [Authorize] // Wymaga zalogowania dla wszystkich akcji w tym kontrolerze
+    [Authorize]
     public class LeadsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -24,16 +24,13 @@ namespace BeMarketer.Controllers
             _userManager = userManager;
         }
 
-        // GET: Leads
         public async Task<IActionResult> Index()
         {
             var userId = _userManager.GetUserId(User);
             var isAdmin = User.IsInRole("Admin");
 
-            // Przygotowujemy zapytanie do bazy
             IQueryable<Lead> leadsQuery = _context.Lead.Include(l => l.ApplicationUser);
 
-            // Jeśli to nie jest Admin, filtrujemy wyniki tylko do Leadów przypisanych do tego użytkownika
             if (!isAdmin)
             {
                 leadsQuery = leadsQuery.Where(l => l.ApplicationUserId == userId);
@@ -42,7 +39,6 @@ namespace BeMarketer.Controllers
             return View(await leadsQuery.ToListAsync());
         }
 
-        // GET: Leads/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -59,7 +55,6 @@ namespace BeMarketer.Controllers
                 return NotFound();
             }
 
-            // Ochrona: Jeśli nie jesteś adminem i to nie jest Twój lead -> Brak dostępu
             if (!User.IsInRole("Admin") && lead.ApplicationUserId != _userManager.GetUserId(User))
             {
                 return Forbid();
@@ -68,7 +63,6 @@ namespace BeMarketer.Controllers
             return View(lead);
         }
 
-        // GET: Leads/Create
         public IActionResult Create()
         {
             if (User.IsInRole("Admin"))
@@ -78,7 +72,6 @@ namespace BeMarketer.Controllers
             return View();
         }
 
-        // POST: Leads/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,Email,Phone,Address,Description,Status,CreatedAt,ApplicationUserId")] Lead lead)
@@ -108,7 +101,6 @@ namespace BeMarketer.Controllers
             return View(lead);
         }
 
-        // GET: Leads/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -122,7 +114,6 @@ namespace BeMarketer.Controllers
                 return NotFound();
             }
 
-            // Ochrona: Zwykły użytkownik nie może wejść w edycję cudzego leada
             if (!User.IsInRole("Admin") && lead.ApplicationUserId != _userManager.GetUserId(User))
             {
                 return Forbid();
@@ -137,7 +128,6 @@ namespace BeMarketer.Controllers
             return View(lead);
         }
 
-        // POST: Leads/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Email,Phone,Address,Description,Status,CreatedAt,ApplicationUserId")] Lead lead)
@@ -150,7 +140,6 @@ namespace BeMarketer.Controllers
             var userId = _userManager.GetUserId(User);
             var isAdmin = User.IsInRole("Admin");
 
-            // Sprawdzamy oryginalnego leada w bazie (AsNoTracking żeby nie blokować późniejszego Update)
             var originalLead = await _context.Lead.AsNoTracking().FirstOrDefaultAsync(l => l.Id == id);
 
             if (originalLead == null)
@@ -158,15 +147,13 @@ namespace BeMarketer.Controllers
                 return NotFound();
             }
             
-            // Ochrona 1: Próba edycji nieswojego leada przez POST
             if (!isAdmin && originalLead.ApplicationUserId != userId)
             {
                 return Forbid();
             }
 
-            ViewData["StatusList"] = new SelectList(Enum.GetValues(typeof(LeadStatus)), lead.Status); // był brak selected
+            ViewData["StatusList"] = new SelectList(Enum.GetValues(typeof(LeadStatus)), lead.Status); 
 
-            // Ochrona 2: Zwykły użytkownik nie może zmienić przypisania leada, nadpisujemy na jego własne ID
             if (!isAdmin)
             {
                 lead.ApplicationUserId = userId;
@@ -201,7 +188,6 @@ namespace BeMarketer.Controllers
             return View(lead);
         }
 
-        // GET: Leads/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -218,7 +204,7 @@ namespace BeMarketer.Controllers
                 return NotFound();
             }
             ViewData["StatusList"] = new SelectList(Enum.GetValues(typeof(LeadStatus)));
-            // Ochrona przed usunięciem cudzego leada
+
             if (!User.IsInRole("Admin") && lead.ApplicationUserId != _userManager.GetUserId(User))
             {
                 return Forbid();
@@ -227,7 +213,6 @@ namespace BeMarketer.Controllers
             return View(lead);
         }
 
-        // POST: Leads/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -235,7 +220,7 @@ namespace BeMarketer.Controllers
             var lead = await _context.Lead.FindAsync(id);
             if (lead != null)
             {
-                // Ostatnia kontrola w POST Delete przed fizycznym skasowaniem
+
                 if (!User.IsInRole("Admin") && lead.ApplicationUserId != _userManager.GetUserId(User))
                 {
                     return Forbid();

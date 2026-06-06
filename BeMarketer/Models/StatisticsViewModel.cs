@@ -32,31 +32,24 @@ namespace BeMarketer.ViewModels
 
     public class StatisticsViewModel
     {
-        // Filtry
         public int SelectedYear { get; set; }
         public int? SelectedMonth { get; set; }
         public int? CompareYear { get; set; }
         public int? CompareMonth { get; set; }
 
-        // Statystyki głównego okresu
         public PeriodStats CurrentPeriodStats { get; set; } = new();
         public PeriodStats? ComparePeriodStats { get; set; }
 
-        // Najlepszy pracownik w wybranym okresie
         public EmployeeStats? TopEmployee { get; set; }
 
-        // Lista wszystkich pracowników (dla tabeli rankingowej)
         public List<EmployeeStats> EmployeeRanking { get; set; } = new();
 
-        // Dane dla wykresu dziennego (tylko gdy wybrany miesiąc)
         public List<DailyLeadCount> DailyData { get; set; } = new();
         public List<DailyLeadCount> CompareDailyData { get; set; } = new();
 
-        // Dane miesięczne (gdy wybrany tylko rok)
         public List<(int Month, int Count)> MonthlyData { get; set; } = new();
         public List<(int Month, int Count)> CompareMonthlyData { get; set; } = new();
 
-        // Pomocnicze
         public List<int> AvailableYears { get; set; } = new();
         public string PeriodLabel => SelectedMonth.HasValue
             ? $"{System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(SelectedMonth.Value)} {SelectedYear}"

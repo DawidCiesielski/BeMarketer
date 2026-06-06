@@ -11,7 +11,7 @@
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
-            <input type="hidden" asp-for="CreatedAt" />  @* HIDDEN zamiast edytowalnego pola *@
+            <input type="hidden" asp-for="CreatedAt" /> 
 
             <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
@@ -39,14 +39,12 @@
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
 
-            @* POPRAWIONY select dla Status z asp-items *@
             <div class="form-group">
                 <label asp-for="Status" class="control-label"></label>
                 <select asp-for="Status" class="form-control" asp-items="ViewBag.StatusList"></select>
                 <span asp-validation-for="Status" class="text-danger"></span>
             </div>
 
-            @* ApplicationUserId tylko dla Admina *@
             @if (ViewBag.ApplicationUserId != null)
             {
                 <div class="form-group">

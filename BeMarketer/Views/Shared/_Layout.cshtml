@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/BeMarketer.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/navbar.css" asp-append-version="true" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@tabler/icons-webfont@@latest/tabler-icons.min.css" />
 </head>
 <body>
     <header>
@@ -23,22 +22,17 @@
                 <ul class="navbar-nav flex-row">
                     <li class="nav-item">
                         <a class="nav-link @(c == "Home" && a == "Index" ? "active" : "")" asp-controller="Home" asp-action="Index">
-                            <i class="ti ti-home"></i> Home
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link @(c == "Home" && a == "Privacy" ? "active" : "")" asp-controller="Home" asp-action="Privacy">
-                            <i class="ti ti-lock"></i> Privacy
+                             Home
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link @(c == "Leads" ? "active" : "")" asp-controller="Leads" asp-action="Index">
-                            <i class="ti ti-users"></i> Leads
+                             Leads
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link @(c == "Statistics" ? "active" : "")" asp-controller="Statistics" asp-action="Index">
-                            <i class="ti ti-chart-bar"></i> Stats
+                             Stats
                         </a>
                     </li>
                 </ul>
