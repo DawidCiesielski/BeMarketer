@@ -19,9 +19,11 @@ namespace BeMarketer.Models
         public string Name { get; set; }
 
         [Required, StringLength(64)]
+        [RegularExpression(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", ErrorMessage = "Invalid email format.")]
         public string Email { get; set; }
 
-        [Required, StringLength(20)]
+        [Required, StringLength(12)]
+        [RegularExpression(@"^\+\d{1,11}$", ErrorMessage = "Phone number must start with '+' and contain up to 11 digits.")]
         public string Phone { get; set; }
 
         [Required, StringLength(64)]
